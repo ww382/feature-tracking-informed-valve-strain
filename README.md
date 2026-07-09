@@ -10,7 +10,7 @@ All example data are in the folder [example](example).
 - [example/mean_shape](example/mean_shape) contains the reference mean-shape meshes.
 - `example/remesh`, `example/center_mesh`, and `example/results` are generated when the pipeline runs.
 
-The example file names include the frame (`MD` or `MS`) and leaflet name (`anterior`, `posterior`, or `septal`) for an example tricuspid valve from a patient with hypoplastic left heart syndrome. For example, `MD anterior atrial surface.vtk` contains the anterior leaflet surface mesh at the MD frame.
+The example dataset contains tricuspid valve leaflet meshes from a patient with hypoplastic left heart syndrome. File names indicate both the cardiac frame (`MD` or `MS`) and leaflet (`anterior`, `posterior`, or `septal`); for example, `MD anterior atrial surface.vtk` is the anterior leaflet surface mesh at the MD frame.
 
 ## Code
 
