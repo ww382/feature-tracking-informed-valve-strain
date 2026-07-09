@@ -6,7 +6,7 @@ This repository contains the data and code for the paper [W. Wu, M. Daemer, J. A
 
 All example data are in the folder [example](example).
 
-- [example/raw surface](<example/raw surface>) contains the raw MD and MS leaflet surface meshes.
+- [example/raw_surface](example/raw_surface) contains the raw MD and MS leaflet surface meshes.
 - [example/mean_shape](example/mean_shape) contains the reference mean-shape meshes.
 - `example/remesh`, `example/center_mesh`, and `example/results` are generated when the pipeline runs.
 

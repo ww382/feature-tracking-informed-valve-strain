@@ -28,7 +28,7 @@ base_dir = os.getcwd()
 output_dir = "remesh"
 os.makedirs(output_dir, exist_ok=True)
 
-raw_surface_dir = os.path.join(base_dir, "raw surface")
+raw_surface_dir = os.path.join(base_dir, "raw_surface")
 print(raw_surface_dir)
 files = glob.glob(os.path.join(raw_surface_dir, "*.vtk"))
 print(f"Found files: {files}")
