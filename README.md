@@ -18,6 +18,24 @@ The runnable pipeline steps are in the folder [pipeline_steps](pipeline_steps). 
 
 The code depends on `numpy`, `vtk`, `pyvista`, `pyacvd`, `pycpd`, and `matplotlib`.
 
+`surface_mesh_analysis` is installable on its own, for use from other code:
+
+```bash
+pip install git+https://github.com/ww382/feature-tracking-informed-valve-strain
+```
+
+It needs only `numpy`, `vtk` and `pycpd`. The strain calculation has two entry points - one
+that reads and writes files, and one that takes the meshes in memory:
+
+```python
+from surface_mesh_analysis.shell_strain import (
+    calculate_large_deformation_strain,              # paths in, file out (optional)
+    calculate_large_deformation_strain_from_polydata,  # vtkPolyData in, vtkPolyData out
+)
+```
+
+The pipeline steps and the example data are not part of the installed package.
+
 - [Resample raw surfaces](pipeline_steps/resample_points.py)
 - [Center meshes](pipeline_steps/center_mesh.py)
 - [Check mesh orientation](pipeline_steps/rotate_mesh.py)

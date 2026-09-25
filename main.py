@@ -41,6 +41,7 @@ def update_and_exec_script(script_path):
     exec_namespace = {
         '__name__': '__main__',
         'FRAMES': FRAMES,
+        '__file__': script_path,
         'LEAFLETS': LEAFLETS,
     }
     exec(code, exec_namespace)
