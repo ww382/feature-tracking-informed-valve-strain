@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "surface-mesh-analysis"
+version = "0.1.0"
+description = "Surface mesh analysis for feature-tracking informed valve strain: distance-weighted CPD registration and large-deformation shell strain."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Wensi Wu", email = "wensiwu@seas.upenn.edu" }]
+keywords = ["shell strain", "valve", "mesh", "registration", "cpd", "vtk"]
+dependencies = [
+  "numpy",
+  "vtk",
+  "pycpd",
+]
+
+[project.urls]
+Homepage = "https://github.com/ww382/feature-tracking-informed-valve-strain"
+Paper = "https://arxiv.org/pdf/2510.06578"
+
+# the library only: the pipeline steps and the example data stay in the repository
+[tool.setuptools]
+packages = ["surface_mesh_analysis"]
