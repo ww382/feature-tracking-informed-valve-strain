@@ -23,7 +23,8 @@ class DistanceWeightedDeformableCPD(DeformableRegistration):
         den = np.clip(np.sum(P, axis=0, keepdims=True), np.finfo(self.X.dtype).eps, None) + c
         self.P = P / den
 
-        distances = np.linalg.norm(self.X[:, None, :] - self.TY[None, :, :], axis=2)
+        # (M, N) like P: row m is source point TY[m], column n is target point X[n]
+        distances = np.linalg.norm(self.TY[:, None, :] - self.X[None, :, :], axis=2)
         self.P *= np.exp(-self.decay_factor * distances)
         self.P /= np.sum(self.P, axis=0, keepdims=True)
 

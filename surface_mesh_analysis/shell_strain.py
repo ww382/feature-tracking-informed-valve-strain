@@ -13,7 +13,6 @@ def read_vtk(file_path):
     """Read VTK, VTP, or VTU input as surface polydata."""
     file_extension = os.path.splitext(file_path)[1].lower()
     
-    reader = None
     if file_extension == ".vtp":
         print(f"Reading XML PolyData file: {file_path}")
         reader = vtk.vtkXMLPolyDataReader()
@@ -120,11 +119,13 @@ def get_gauss_points(num_nodes):
     else:
         raise ValueError(f"Gauss points for {num_nodes}-node elements not implemented.")
 
-def calculate_large_deformation_strain(initial_mesh_file, deformed_mesh_file, output_file):
-    """Calculate mid-surface shell strain with Gaussian quadrature."""
-    initial_mesh = read_vtk(initial_mesh_file)
-    deformed_mesh = read_vtk(deformed_mesh_file)
+def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh):
+    """Calculate mid-surface shell strain with Gaussian quadrature.
 
+    Takes the two meshes in memory and returns the deformed mesh with the strain arrays
+    added to its point data. calculate_large_deformation_strain() is the same computation
+    with files on either side.
+    """
     deformed_mesh.GetPointData().Initialize()
     deformed_mesh.GetCellData().Initialize()
 
@@ -222,13 +223,28 @@ def calculate_large_deformation_strain(initial_mesh_file, deformed_mesh_file, ou
     point_data.AddArray(principal_strains_mid_array)
     point_data.AddArray(area_strain_array)
 
+    return deformed_mesh
+
+
+def calculate_large_deformation_strain(initial_mesh_file, deformed_mesh_file, output_file=None):
+    """Read two meshes, calculate the strain, and write the result when a path is given."""
+    initial_mesh = read_vtk(initial_mesh_file)
+    deformed_mesh = read_vtk(deformed_mesh_file)
+
+    deformed_mesh = calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh)
+
+    if output_file is None:
+        return deformed_mesh
+
     writer = vtk.vtkPolyDataWriter()
     writer.SetFileName(output_file)
     writer.SetInputData(deformed_mesh)
     writer.Write()
 
     print(f"Strain analysis complete. Output written to: {output_file}")
-    
+    return deformed_mesh
+
+
 if __name__ == '__main__':
 
     ref_file = "mitral_initial.vtk"

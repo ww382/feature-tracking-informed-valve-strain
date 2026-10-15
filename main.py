@@ -30,6 +30,7 @@ class DataPathUpdater(ast.NodeTransformer):
 
 def update_and_exec_script(script_path):
     script_path = os.path.abspath(script_path)
+    working_directory = os.getcwd()
     with open(script_path, 'r', encoding='utf-8') as f:
         source = f.read()
 
@@ -41,9 +42,14 @@ def update_and_exec_script(script_path):
     exec_namespace = {
         '__name__': '__main__',
         'FRAMES': FRAMES,
+        '__file__': script_path,
         'LEAFLETS': LEAFLETS,
     }
-    exec(code, exec_namespace)
+    try:
+        exec(code, exec_namespace)
+    finally:
+        # the steps change into the case folder; the next script path is relative to here
+        os.chdir(working_directory)
 
 workspace_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(workspace_dir)
