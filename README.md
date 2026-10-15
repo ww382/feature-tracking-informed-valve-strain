@@ -1,6 +1,6 @@
 # A Geometric Feature Tracking Approach for Noninvasive Patient-Specific Estimation of Leaflet Strain from 3D Images of Heart Valves
 
-This repository contains the data and code for the paper [W. Wu, M. Daemer, J. A. Weiss, A. M. Pouch, & M. A. Jolley. A Geometric Feature Tracking Approach for Noninvasive Patient-Specific Estimation of Leaflet Strain from 3D Images of Heart Valves. Annals of Biomedical Engineering, 2026.](https://arxiv.org/pdf/2510.06578](https://link.springer.com/article/10.1007/s10439-026-04273-9).
+This repository contains the data and code for the paper [W. Wu, M. Daemer, J. A. Weiss, A. M. Pouch, & M. A. Jolley. A Geometric Feature Tracking Approach for Noninvasive Patient-Specific Estimation of Leaflet Strain from 3D Images of Heart Valves. Annals of Biomedical Engineering, 2026.](https://arxiv.org/pdf/2510.06578](https://link.springer.com/article/10.1007/s10439-026-04273-9)
 
 ## Data
 
