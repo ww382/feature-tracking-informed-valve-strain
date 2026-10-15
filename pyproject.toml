@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "surface-mesh-analysis"
-version = "1.0.2"
+version = "1.0.0"
 description = "Surface mesh analysis for feature-tracking informed valve strain: distance-weighted CPD registration and large-deformation shell strain."
 readme = "README.md"
 requires-python = ">=3.9"
