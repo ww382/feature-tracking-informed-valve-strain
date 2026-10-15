@@ -83,6 +83,24 @@ def surface_normal_and_area_density(tangent_1, tangent_2, cell_idx, mesh_label):
     return normal / area_density, area_density
 
 
+def in_plane_principal_strains(strain_tensor, normal_tensor):
+    """Return the in-plane major and minor principal strains and the through-thickness strain.
+
+    The shell strain tensor is planar: along the surface normal it is zero. Sorting all three
+    eigenvalues of the 3x3 tensor would put that zero between the in-plane strains wherever one of
+    them is negative, so the strain is decomposed in the plane tangent to the reference surface.
+    The normal is the dominant direction of the area-weighted n n^T of the surrounding cells, which
+    does not depend on how consistently the cells are oriented.
+    """
+    _, normal_frame = np.linalg.eigh(normal_tensor)
+    # eigenvectors in ascending order: the last is the normal, the other two span the tangent plane
+    tangent_basis = normal_frame[:, :2]
+    normal = normal_frame[:, 2]
+    in_plane_strain = tangent_basis.T @ strain_tensor @ tangent_basis
+    major, minor = np.linalg.eigvalsh(in_plane_strain)[::-1]
+    return np.array([major, minor, normal @ strain_tensor @ normal])
+
+
 def get_shape_functions(xi, eta, num_nodes):
     """Return shape functions and natural-coordinate derivatives."""
     if num_nodes == 4:
@@ -139,6 +157,7 @@ def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh
 
     nodal_strain_accumulator = [[] for _ in range(num_points)]
     nodal_areal_strain_accumulator = [[] for _ in range(num_points)]
+    nodal_normal_tensor_accumulator = [[] for _ in range(num_points)]
 
     for i in range(num_cells):
         cell = initial_mesh.GetCell(i)
@@ -152,6 +171,7 @@ def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh
         total_weight = sum(gauss_weights)
 
         strain_total = np.zeros((3, 3))
+        normal_tensor_total = np.zeros((3, 3))
         ref_area_total = 0.0
         def_area_total = 0.0
         
@@ -179,6 +199,7 @@ def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh
             E_gp = 0.5 * (C - I)
             
             strain_total += E_gp * weight
+            normal_tensor_total += np.outer(n_ref, n_ref) * ref_area_density * weight
             ref_area_total += ref_area_density * weight
             def_area_total += def_area_density * weight
 
@@ -189,6 +210,7 @@ def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh
             global_node_id = point_ids.GetId(j)
             nodal_strain_accumulator[global_node_id].append(E_element_avg)
             nodal_areal_strain_accumulator[global_node_id].append(areal_strain)
+            nodal_normal_tensor_accumulator[global_node_id].append(normal_tensor_total)
 
     strain_tensor_mid_array = vtk.vtkDoubleArray()
     strain_tensor_mid_array.SetName("Lagrange_strain")
@@ -204,24 +226,34 @@ def calculate_large_deformation_strain_from_polydata(initial_mesh, deformed_mesh
     area_strain_array.SetName("ArealStrain")
     area_strain_array.SetNumberOfTuples(num_points)
 
+    # the largest in-plane stretch, 0 where the leaflet shortens in both directions; what sorting
+    # all eigenvalues of the 3x3 tensor gave as the 1st principal strain before
+    max_tensile_strain_array = vtk.vtkDoubleArray()
+    max_tensile_strain_array.SetName("MaxTensileStrain")
+    max_tensile_strain_array.SetNumberOfTuples(num_points)
+
     for i in range(num_points):
         if not nodal_strain_accumulator[i]:
             E_mid = np.zeros((3, 3))
             avg_areal_strain = 0.0
+            principal_strains_sorted = np.zeros(3)
         else:
             E_mid = np.mean(nodal_strain_accumulator[i], axis=0)
             avg_areal_strain = np.mean(nodal_areal_strain_accumulator[i])
-
-        principal_strains_sorted = np.sort(np.linalg.eigvalsh(E_mid))[::-1]
+            # [in-plane maximum, in-plane minimum, through-thickness]
+            principal_strains_sorted = in_plane_principal_strains(
+                E_mid, np.sum(nodal_normal_tensor_accumulator[i], axis=0))
 
         strain_tensor_mid_array.SetTuple(i, E_mid.flatten())
         principal_strains_mid_array.SetTuple(i, principal_strains_sorted)
         area_strain_array.SetTuple1(i, avg_areal_strain)
+        max_tensile_strain_array.SetTuple1(i, max(principal_strains_sorted[0], 0.0))
 
     point_data = deformed_mesh.GetPointData()
     point_data.AddArray(strain_tensor_mid_array)
     point_data.AddArray(principal_strains_mid_array)
     point_data.AddArray(area_strain_array)
+    point_data.AddArray(max_tensile_strain_array)
 
     return deformed_mesh
 
